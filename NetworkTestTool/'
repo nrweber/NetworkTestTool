@@ -1,36 +1,29 @@
 namespace nic_weber.NetworkTestTool;
 
-using System.Net;
 using System.Net.Sockets;
+using System.Text;
 
-public class TestTcpListener : IDisposable
+public class TestTcpSender : IDisposable
 {
     private Thread? _runningThread = null;
     private CancellationTokenSource _tokenSource = new();
 
-    private readonly ILogger<TestTcpListener> _logger;
-
-    private IPEndPoint _endPoint;
+    private readonly ILogger<TestTcpSender> _logger;
+    private readonly string _ipAddress;
+    private readonly int _port;
 
     private bool _disposed;
     
-    public TestTcpListener(int port, ILogger<TestTcpListener> logger)
+    public TestTcpSender(string ipAddress, int port, ILogger<TestTcpSender> logger)
     {
         _logger = logger;
 
-        _endPoint = new(IPAddress.Any, port);
-    }
-
-    public TestTcpListener(string ipAddress, int port, ILogger<TestTcpListener> logger)
-    {
-        _logger = logger;
-
-        _endPoint = new(IPAddress.Parse(ipAddress), port);
+        _ipAddress = ipAddress;
+        _port = port;
     }
 
     public void Start()
     {
-        _logger.LogInformation("TCP Listner starting");
         if(_runningThread is null)
         {
             _tokenSource.Dispose();
@@ -42,7 +35,6 @@ public class TestTcpListener : IDisposable
 
     public void Stop()
     {
-        _logger.LogInformation("TCP Listner stopping");
         if(_runningThread is not null)
         {
             _tokenSource.Cancel();
@@ -53,38 +45,36 @@ public class TestTcpListener : IDisposable
 
     private void WorkerThread()
     {
-        try
+        while(_tokenSource.IsCancellationRequested)
         {
-            TcpListener listener = new(_endPoint);
-            listener.Start();
-
-            while(_tokenSource.IsCancellationRequested == false)
+            try
             {
-                TcpClient client = listener.AcceptTcpClient();
+                TcpClient client = new(_ipAddress, _port);
 
                 NetworkStream stream = client.GetStream();
 
                 while(_tokenSource.IsCancellationRequested == false)
                 {
-                    var data = new Byte[512];
-                    Int32 bytes = stream.ReadAsync(data, 0, data.Length, _tokenSource.Token).Result;
+                    String testString = $"Data sent @ {DateTime.Now}";
+                    var data = Encoding.ASCII.GetBytes(testString);
 
-                    if(bytes == 0)
-                        break;
+                    stream.Write(data, 0, data.Length);
 
                     //Just print out what was received as a string
-                    _logger.LogInformation(System.Text.Encoding.ASCII.GetString(data));
-                }
-            }
+                    _logger.LogInformation(System.Text.Encoding.Default.GetString(data));
 
-        }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("thread was canceled");
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Connection failed");
+                    Thread.Sleep(1000);
+                }
+
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("thread was canceled");
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Connection failed");
+            }
         }
     }
 
