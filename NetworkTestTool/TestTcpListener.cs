@@ -13,6 +13,13 @@ public class TestTcpListner : IDisposable
     private IPEndPoint _endPoint;
 
     private bool _disposed;
+    
+    public TestTcpListner(int port, ILogger<TestTcpListner> logger)
+    {
+        _logger = logger;
+
+        _endPoint = new(IPAddress.Any, port);
+    }
 
     public TestTcpListner(string ipAddress, int port, ILogger<TestTcpListner> logger)
     {
