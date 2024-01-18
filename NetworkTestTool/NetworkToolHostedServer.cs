@@ -1,4 +1,4 @@
-namespace NetworkTestTool;
+namespace nic_weber.NetworkTestTool;
 
 public class NetworkToolHostedService : IHostedService
 {

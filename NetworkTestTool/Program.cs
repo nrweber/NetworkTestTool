@@ -1,4 +1,4 @@
-using NetworkTestTool;
+using nic_weber.NetworkTestTool;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<NetworkToolHostedService>();
