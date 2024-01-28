@@ -78,6 +78,13 @@ public class TestTcpSender : IDisposable
             {
                 _logger.LogError(ex, "Connection failed");
             }
+            
+            //Unless the token was cancelled, wait a second before you try to connect again
+            if(_tokenSource.IsCancellationRequested == false)
+            {
+                Thread.Sleep(1000);
+            }
+
         }
     }
 
