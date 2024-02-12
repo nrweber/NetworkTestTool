@@ -8,15 +8,15 @@ import (
 
 func main() {
     fmt.Println("starting");
-    //runTcpListner()
-    runTcpSender()
+    runTcpListner()
+    //runTcpSender()
 }
 
 
 
 // Tcp Listner
 func runTcpListner() {
-    listner, err := net.Listen("tcp", ":9000")
+    listner, err := net.Listen("tcp", ":5000")
     if err != nil {
         fmt.Println(err)
         return

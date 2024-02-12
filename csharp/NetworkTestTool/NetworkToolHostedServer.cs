@@ -19,8 +19,8 @@ public class NetworkToolHostedService : IHostedService
 
         _listener = new TestTcpListener(5000, _loggerFactory.CreateLogger<TestTcpListener>());
         _listener.Start();
-        _sender = new TestTcpSender("127.0.0.1", 5000, _loggerFactory.CreateLogger<TestTcpSender>());
-        _sender.Start();
+        //_sender = new TestTcpSender("127.0.0.1", 9000, _loggerFactory.CreateLogger<TestTcpSender>());
+        //_sender.Start();
 
         return Task.CompletedTask;
     }
